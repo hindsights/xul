@@ -11,10 +11,10 @@ It could be useful when implementing protocols.
 * system utilities and wrappers of os functionalities such as path, file, file_system, os module, os process, pipe, stack backtracing, etc.
 
 #### Examples
-* httpsvr
+* httpsvr<br>
 A simple http server which demonstrates how file download and file upload are implemented by using xul's networking framework.
 
-* lua bindings
+* lua bindings<br>
 xlua is a lua interpreter with xul embedded.<br>
 luaxul is a lua extension library.<br>
 httpsvr.lua demonstrates how to implement file download and file upload in lua by using xul's lua bindings.<br>
