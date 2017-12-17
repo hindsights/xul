@@ -15,7 +15,6 @@ It could be useful when implementing protocols.
 A simple http server which demonstrates how file download and file upload are implemented by using xul's networking framework.
 
 * lua bindings
-xlua is a lua interpreter with xul embedded.
-luaxul is a lua extension library.
-test.lua
-httpsvr.lua demonstrates how to implement file download and file upload in lua by using xul's lua bindings.
+xlua is a lua interpreter with xul embedded.<br>
+luaxul is a lua extension library.<br>
+httpsvr.lua demonstrates how to implement file download and file upload in lua by using xul's lua bindings.<br>
