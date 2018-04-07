@@ -130,7 +130,7 @@ private:
 
 
 
-#ifdef _DEBUG
+#if defined(_DEBUG) || !defined(NDEBUG)
 #  define XULTRACE        ::xul::tracer::trace
 #  define XULTRACE0        ::xul::tracer::output
 #else

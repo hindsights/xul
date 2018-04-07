@@ -54,7 +54,7 @@
 #define XUL_REL_LOG(thelog, context, level, msg)        ((void)0)
 #endif
 
-#ifdef _DEBUG
+#if defined(_DEBUG) || !defined(NDEBUG)
 
 #define XUL_TRACE_LOG(msg) XUL_TRACEOUT_LOG(msg)
 
@@ -67,7 +67,7 @@
 //#define XUL_ENABLE_FULL_LOG
 
 
-#if defined(_DEBUG) || defined(XUL_ENABLE_DEBUG_LOG) || defined(XUL_ENABLE_FULL_LOG)
+#if defined(_DEBUG) || !defined(NDEBUG) || defined(XUL_ENABLE_DEBUG_LOG) || defined(XUL_ENABLE_FULL_LOG)
 #define XUL_DBG_LOG(category, context, level, msg) XUL_REL_LOG(category, context, level, msg)
 #else
 #define XUL_DBG_LOG(category, context, level, msg)        ((void)0)

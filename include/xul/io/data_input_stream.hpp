@@ -50,6 +50,10 @@ public:
         //assert(m_good);
         m_good = false;
     }
+    byte_order& get_byte_order()
+    {
+        return m_byte_order;
+    }
 
     void attach( input_stream& is )
     {
@@ -360,6 +364,16 @@ public:
     {
         return read_uint64( reinterpret_cast<uint64_t&>( val ) );
     }
+    bool read_bool( bool& val )
+    {
+        uint8_t byteval;
+        if (!read_byte(byteval))
+        {
+            return false;
+        }
+        val = (byteval != 0);
+        return true;
+    }
 
 private:
     input_stream* m_in;
@@ -435,6 +449,12 @@ inline data_input_stream& operator>>( data_input_stream& is, int64_t& val )
 inline data_input_stream& operator>>( data_input_stream& is, uint64_t& val )
 {
     is.read_uint64( val );
+    return is;
+}
+
+inline data_input_stream& operator>>( data_input_stream& is, bool& val )
+{
+    is.read_bool( val );
     return is;
 }
 

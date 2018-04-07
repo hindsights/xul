@@ -33,7 +33,7 @@ public:
         enable_reuse_address = false;
         max_keep_alive_requests = 100;
         keep_alive_timeout = 15;
-#ifdef _DEBUG
+#if defined(_DEBUG) || !defined(NDEBUG)
         receive_buffer_size = 4*1024;
 #else
         receive_buffer_size = 16*1024;

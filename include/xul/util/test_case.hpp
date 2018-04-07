@@ -28,7 +28,7 @@
 
 
 
-#if defined(_DEBUG) && !defined(_WIN32_WCE)
+#if (defined(_DEBUG) || !defined(NDEBUG)) && !defined(_WIN32_WCE)
 
 #ifndef XUL_RUN_TEST
 #define XUL_RUN_TEST

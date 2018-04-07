@@ -15,7 +15,7 @@ namespace xul {
 
 class byte_buffer : public object_impl<buffer>
 {
-#ifdef _DEBUG
+#if defined(_DEBUG) || !defined(NDEBUG)
 private:
     static boost::detail::atomic_count& ref_total_buffer_count()
     {
@@ -31,13 +31,13 @@ public:
 
     byte_buffer() : m_data(NULL), m_capacity(0), m_size(0)
     {
-#ifdef _DEBUG
+#if defined(_DEBUG) || !defined(NDEBUG)
         ++ref_total_buffer_count();
 #endif
     }
     explicit byte_buffer(const element_type* data, size_t size) : m_capacity(size), m_size(size)
     {
-#ifdef _DEBUG
+#if defined(_DEBUG) || !defined(NDEBUG)
         ++ref_total_buffer_count();
 #endif
         if ( size > 0 )
@@ -52,7 +52,7 @@ public:
     }
     explicit byte_buffer(size_t size) : m_capacity(size), m_size(size)
     {
-#ifdef _DEBUG
+#if defined(_DEBUG) || !defined(NDEBUG)
         ++ref_total_buffer_count();
 #endif
         if ( size > 0 )
@@ -66,7 +66,7 @@ public:
     }
     explicit byte_buffer(size_t size, const element_type& initialVal) : m_capacity(size), m_size(size)
     {
-#ifdef _DEBUG
+#if defined(_DEBUG) || !defined(NDEBUG)
         ++ref_total_buffer_count();
 #endif
         if ( m_size > 0 )
@@ -81,7 +81,7 @@ public:
     }
     ~byte_buffer()
     {
-#ifdef _DEBUG
+#if defined(_DEBUG) || !defined(NDEBUG)
         --ref_total_buffer_count();
 #endif
         XUL_APP_DEBUG("buffer.delete " << xul::make_tuple(this, static_cast<void*>(m_data), m_capacity, m_size));

@@ -12,6 +12,8 @@
 
 #include <vector>
 #include <string>
+#include <utility>
+#include <tuple>
 #include <assert.h>
 #include <stdint.h>
 
@@ -96,6 +98,11 @@ public:
         }
     }
 
+
+    void write_bool( bool val )
+    {
+        write_byte( static_cast<unsigned char>( val ? 1 : 0 ) );
+    }
 
     void write_uint8( unsigned char val )
     {
@@ -247,6 +254,13 @@ inline data_output_stream& operator<<( data_output_stream& os, uint64_t val )
     return os;
 }
 
+inline data_output_stream& operator<<( data_output_stream& os, bool val )
+{
+    os.write_bool( val );
+    return os;
+}
+
+/* strings/vectors/buffers are usually serialized with length tags 
 template<typename TraitsT, typename AllocT>
 inline data_output_stream& operator<<( data_output_stream& os, const std::basic_string<char, TraitsT, AllocT>& s )
 {
@@ -273,15 +287,23 @@ inline data_output_stream& operator<<( data_output_stream& os, const buffer& dat
     os.write_buffer( data );
     return os;
 }
+*/
 
 inline data_output_stream& operator<<( data_output_stream& os, const serializable& obj )
 {
-    size_t oldPos = os.position();
+//    size_t oldPos = os.position();
     obj.write_object( os );
     //assert(obj.get_object_size() < 0 || obj.get_object_size() + oldPos == os.position());
     return os;
 }
 
+/*
+template <typename T1, typename T2>
+    inline data_output_stream& operator<<( data_output_stream& os, const std::pair<T1, T2>& obj )
+{
+    return os << obj.first << obj.second;
+}
+*/
 
 class memory_data_output_stream : public data_output_stream
 {
@@ -295,7 +317,7 @@ private:
     memory_output_stream m_mis;
 };
 
-    
+
 class ostream_data_output_stream : public data_output_stream
 {
 public:
@@ -303,7 +325,7 @@ public:
     {
         this->attach( m_mis );
     }
-    
+
 private:
     ostream_stream m_mis;
 };

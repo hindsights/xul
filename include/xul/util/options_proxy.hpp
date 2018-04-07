@@ -1,9 +1,13 @@
 #pragma once
 
 #include <xul/util/options.hpp>
+#include <xul/util/options_wrapper.hpp>
 #include <xul/util/data_parser.hpp>
 #include <xul/lang/object_impl.hpp>
 #include <xul/macro/iterate.hpp>
+#include <xul/io/stdfile.hpp>
+#include <boost/algorithm/string/trim.hpp>
+#include <boost/algorithm/string/predicate.hpp>
 
 /**
  * @file
@@ -68,9 +72,43 @@ protected:
     {
         return *m_opts;
     }
+    virtual void revise()
+    {
+    }
 
 private:
     boost::intrusive_ptr<options> m_opts;
+};
+
+
+template <typename BaseT>
+class root_options_proxy : public options_proxy<BaseT>
+{
+public:
+    virtual bool parse_file( const char* filepath )
+    {
+        stdfile_reader fin;
+        if ( false == fin.open_text(filepath) )
+        {
+            //XUL_APP_REL_ERROR("failedt o load config file " << filepath);
+            return false;
+        }
+
+        std::string line;
+        options_wrapper opts(this->get_options());
+
+        while(fin.read_line(line)) {
+            boost::trim_if (line, boost::is_any_of(" \t\r\n"));
+            if (line.empty())
+                continue; // ∫ˆ¬‘ø’––
+            assert(line.size() > 0);
+            if ('#' == line[0])
+                continue; // ∫ˆ¬‘◊¢ Õ
+            opts.parse(line);
+        }
+        this->revise();
+        return true;
+    }
 };
 
 

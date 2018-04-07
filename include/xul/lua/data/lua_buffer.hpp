@@ -45,7 +45,7 @@ public:
     }
     static int total_count(lua_State* L)
     {
-#ifdef _DEBUG
+#if defined(_DEBUG) || !defined(NDEBUG)
         lua_pushnumber(L, byte_buffer::get_total_buffer_count());
 #else
         lua_pushnumber(L, 0);

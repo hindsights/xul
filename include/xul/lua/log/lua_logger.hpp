@@ -167,7 +167,7 @@ public:
     }
     static int log_debug(lua_State* L)
     {
-#ifdef _DEBUG
+#if defined(_DEBUG) || !defined(NDEBUG)
         return do_log(L, xul::LOG_DEBUG);
 #else
         return 0;

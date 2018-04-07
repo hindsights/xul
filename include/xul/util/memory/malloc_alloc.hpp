@@ -9,7 +9,7 @@
 class malloc_alloc
 {
 public:
-#ifdef _DEBUG
+#if defined(_DEBUG) || !defined(NDEBUG)
     static void* allocate(size_t size, const char* filename = NULL, int line = 0)
 #else
     static void* allocate(size_t size)
@@ -21,7 +21,7 @@ public:
         return p;
     }
 
-#ifdef _DEBUG
+#if defined(_DEBUG) || !defined(NDEBUG)
     static void deallocate(void* p, size_t size = 0, const char* filename = NULL, int line = 0)
 #else
     static void deallocate(void* p, size_t size = 0)

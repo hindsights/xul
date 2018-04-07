@@ -215,7 +215,7 @@ public:
 
     void post_error(int errcode)
     {
-        xul::io_services::post_runnable(m_io_service.get(), boost::bind(&concurrent_http_connection_impl::on_error, this, errcode));
+        xul::io_services::post(m_io_service.get(), boost::bind(&concurrent_http_connection_impl::on_error, this, errcode));
     }
 
     virtual const http_connection_options* get_options() const { return m_options.get(); }

@@ -3,6 +3,7 @@
 #include <boost/static_assert.hpp>
 
 #include <string>
+#include <iterator>
 #include <string.h>
 #include <assert.h>
 
@@ -47,12 +48,31 @@ public:
             return "";
         std::string result;
         result.resize(size * 2);
-        do_encode(&result[0], data, data + size);
+        encode(&result[0], data, data + size);
         return result;
     }
     std::string encode(const char* data, size_t size)
     {
         return encode(reinterpret_cast<const unsigned char*>(data), size);
+    }
+    template <typename IteratorT>
+    std::string encode(IteratorT first, IteratorT last)
+    {
+        std::string result;
+        encode(std::back_inserter(result), first, last);
+        return result;
+    }
+    template <typename OutputIteratorT, typename IteratorT>
+    void encode(OutputIteratorT dest, IteratorT src, IteratorT srcEnd)
+    {
+        for (IteratorT pch = src; pch != srcEnd; ++pch)
+        {
+            unsigned char ch = *pch;
+            unsigned char highBit = (ch >> 4);
+            unsigned char lowBit = (ch & 0x0F);
+            *dest++ = do_encode_bit(highBit);
+            *dest++ = do_encode_bit(lowBit);
+        }
     }
     std::string encode(const std::string& str)
     {
@@ -103,18 +123,6 @@ public:
     }
 
 private:
-    void do_encode(char* dest, const unsigned char* src, const unsigned char* srcEnd)
-    {
-        for (const unsigned char* pch = src; pch != srcEnd; ++pch)
-        {
-            unsigned char ch = *pch;
-            unsigned char highBit = (ch >> 4);
-            unsigned char lowBit = (ch & 0x0F);
-            *dest++ = do_encode_bit(highBit);
-            *dest++ = do_encode_bit(lowBit);
-        }
-    }
-
     char do_encode_bit(unsigned char bit)
     {
         assert(bit < 16);

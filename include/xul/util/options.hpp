@@ -50,6 +50,13 @@ public:
 };
 
 
+class root_options : public options
+{
+public:
+    virtual bool parse_file(const char* filepath) = 0;
+};
+
+
 options* create_options();
 options* create_dynamic_options();
 

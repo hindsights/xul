@@ -62,7 +62,7 @@ public:
     {
         XULTRACE("log_service.new\n");
         m_loggers.reset(new logger_collection);
-#ifdef _DEBUG
+#if defined(_DEBUG) || !defined(NDEBUG)
         m_log_level = LOG_DEBUG;
 #else
         m_log_level = LOG_INFO;

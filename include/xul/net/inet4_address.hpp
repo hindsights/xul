@@ -67,13 +67,20 @@ private:
 inline inet4_address make_raw_inet4_address(uint32_t ip)
 {
     inet4_address addr;
-    addr.set_raw_address(ip);
+    addr.set_address(ip);
     return addr;
 }
 inline inet4_address make_inet4_address(uint32_t ip)
 {
     inet4_address addr;
     addr.set_address(ip);
+    return addr;
+}
+
+inline inet4_address make_inet4_address(const char* ipstr)
+{
+    inet4_address addr;
+    addr.set_address(ipstr);
     return addr;
 }
 

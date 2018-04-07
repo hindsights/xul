@@ -82,7 +82,7 @@ public:
         const char* errmsg = lua_tostring(L, -1);
         XUL_APP_REL_ERROR("handle_error " << (errmsg ? errmsg : ""));
         dump_call_stack(L, "handle_error");
-#ifdef _DEBUG
+#if defined(_DEBUG) || !defined(NDEBUG)
         XUL_APP_REL_ERROR("handle_error exit");
         ::exit(100);
 #endif
@@ -91,7 +91,7 @@ public:
 public:
     static int pcall(lua_State* L, int argcount)
     {
-#if defined(_DEBUG) && 0
+#if (defined(_DEBUG) || !defined(NDEBUG)) && 0
         int errfunc = -argcount - 2;
         lua_pushcfunction(L, &lua_utility::handle_error);
         lua_insert(L, errfunc);
@@ -121,7 +121,7 @@ public:
     {
         XUL_APP_DEBUG("dump_table: begin " << idx << " " << tag);
         assert(lua_istable(L, idx));
-#if defined(_DEBUG) && 0
+#if (defined(_DEBUG) || !defined(NDEBUG)) && 0
         lua_pushnil(L);
         while( 0 != lua_next( L, idx - 1 ) )
         {
@@ -167,7 +167,7 @@ public:
     }
     static void dump_stack(lua_State *L, const char* tag)
     {
-#if defined(_DEBUG) && 0
+#if (defined(_DEBUG) || !defined(NDEBUG)) && 0
         XUL_APP_DEBUG("dump_stack: begin " << L << ":" << tag << " " << lua_gettop(L));
         //printf("dump_stack: begin %s %d\n", tag, lua_gettop(L));
         int i;

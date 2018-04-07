@@ -116,7 +116,7 @@ public:
         options_wrapper opts(*this);
         opts.add("base_directory", &base_directory, ".");
         opts.add("config_file", &config_file, "log.conf");
-#ifdef _DEBUG
+#if defined(_DEBUG) || !defined(NDEBUG)
         opts.add("file_roll_size", &file_roll_size, 100 * 1024 * 1024); // 100M
         opts.add_switch("enable_console_log", &enable_console_log, true);
         opts.add_switch("enable_android_log", &enable_android_log, true);

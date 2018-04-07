@@ -9,7 +9,7 @@
 
 #if defined(BOOST_WINDOWS)
 
-#if defined(_DEBUG)
+#if defined(_DEBUG) || !defined(NDEBUG)
 
 #pragma message("------ crt memory checking utilities")
 
@@ -48,7 +48,7 @@ public:
 
 
 
-#if defined(_DEBUG) && !defined(XUL_DISABLE_MEMORY_LEAK_CHECKING)
+#if (defined(_DEBUG) || !defined(NDEBUG)) && !defined(XUL_DISABLE_MEMORY_LEAK_CHECKING)
 
 #  pragma message("------enable memory leak checking")
 #  define XUL_MEMORY_LEAK_CHECKING_ENABLED

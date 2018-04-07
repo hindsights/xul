@@ -19,7 +19,7 @@ class io_services
 {
 public:
     template <typename CallbackT>
-    static void post_runnable(io_service* ios, CallbackT callback)
+    static void post(io_service* ios, CallbackT callback)
     {
         boost::intrusive_ptr<runnable> r = make_runnable(callback);
         ios->post(r.get());

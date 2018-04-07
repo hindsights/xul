@@ -3,6 +3,7 @@
 #include <xul/config.hpp>
 #include <xul/std/strings.hpp>
 #include <xul/macro/fill_zero.hpp>
+#include <ostream>
 #include <boost/config.hpp>
 
 #include <sys/timeb.h>
@@ -347,5 +348,108 @@ private:
 
 #endif
 
+
+class unix_time
+{
+public:
+    static unix_time now()
+    {
+        return from_local_time(::time(nullptr));
+    }
+    static unix_time utc_now()
+    {
+        return from_utc_time(::time(nullptr));
+    }
+    static unix_time from_local_time(time_t t)
+    {
+        unix_time ut(t);
+        ut.make_local_time();
+        return ut;
+    }
+    static unix_time from_utc_time(time_t t)
+    {
+        unix_time ut(t);
+        ut.make_utc_time();
+        return ut;
+    }
+private:
+    explicit unix_time(time_t t) : m_timecount(t)
+    {
+        XUL_FILL_ZERO(m_timeinfo);
+    }
+    bool make_local_time()
+    {
+        struct tm* t = ::localtime(&m_timecount);
+        if (!t)
+        {
+            assert(false);
+            return false;
+        }
+        m_timeinfo = *t;
+        return true;
+    }
+    bool make_utc_time()
+    {
+        struct tm* t = ::gmtime(&m_timecount);
+        if (!t)
+        {
+            assert(false);
+            return false;
+        }
+        m_timeinfo = *t;
+        return true;
+    }
+
+public:
+    int year() const
+    {
+        return m_timeinfo.tm_year + 1900;
+    }
+    int month() const
+    {
+        return m_timeinfo.tm_mon + 1;
+    }
+    int day() const
+    {
+        return m_timeinfo.tm_mday;
+    }
+    int hour() const
+    {
+        return m_timeinfo.tm_hour;
+    }
+    int minute() const
+    {
+        return m_timeinfo.tm_min;
+    }
+    int second() const
+    {
+        return m_timeinfo.tm_sec;
+    }
+    std::string str() const
+    {
+        return format( "%04u-%02u-%02u %02u:%02u:%02u" );
+    }
+
+    std::string format( const char* formatStr ) const
+    {
+        return strings::format(
+                               formatStr,
+                               year(),
+                               month(),
+                               day(),
+                               hour(),
+                               minute(),
+                               second());
+    }
+
+private:
+    const time_t m_timecount;
+    struct tm m_timeinfo;
+};
+
+inline std::ostream& operator<<(std::ostream& os, const unix_time& t)
+{
+    return os << t.str();
+}
 
 }
