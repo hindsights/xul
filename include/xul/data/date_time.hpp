@@ -295,7 +295,7 @@ public:
     std::string str_no_milliseconds() const
     {
         return strings::format(
-            "%04u-%02u-%02u %02u:%02u:%02u.%03u",
+            "%04u-%02u-%02u %02u:%02u:%02u",
             year(),
             month(),
             day(),

@@ -101,7 +101,7 @@ private:
         //}
 
         //eh_initializer();
-        XULTRACE("run io_service");
+        XULTRACE("run io_service\n");
 
         bool continueLoop = true;
         while (continueLoop)
@@ -114,7 +114,7 @@ private:
             m_io_service->reset(); // reset internal state of the io_service, prepare for running continuously
             continueLoop = m_continue;
         }
-        XULTRACE("quit io_service");
+        XULTRACE("quit io_service\n");
     }
 
 private:

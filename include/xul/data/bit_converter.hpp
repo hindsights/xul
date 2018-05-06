@@ -138,20 +138,20 @@ public:
                   static_cast<uint64_t>( data[0] );
     }
 
-    void from_word( uint16_t x, char* buf )
+    void from_word( char* buf, uint16_t x )
     {
-        from_word( x, reinterpret_cast<uint8_t*>( buf ) );
+        from_word( reinterpret_cast<uint8_t*>( buf ), x );
     }
-    void from_dword( uint32_t x, char* buf )
+    void from_dword( char* buf, uint32_t x )
     {
-        from_dword( x, reinterpret_cast<uint8_t*>( buf ) );
+        from_dword( reinterpret_cast<uint8_t*>( buf ), x );
     }
-    void from_qword( uint64_t x, char* buf )
+    void from_qword( char* buf, uint64_t x )
     {
-        from_qword( x, reinterpret_cast<uint8_t*>( buf ) );
+        from_qword( reinterpret_cast<uint8_t*>( buf ), x );
     }
 
-    void from_word( uint16_t x, uint8_t* buf )
+    void from_word( uint8_t* buf, uint16_t x )
     {
         assert(buf);
         if ( m_big_endian )
@@ -165,7 +165,7 @@ public:
             buf[0] = low_byte( x );
         }
     }
-    void from_dword( uint32_t x, uint8_t* buf )
+    void from_dword( uint8_t* buf, uint32_t x )
     {
         assert(buf);
         if ( m_big_endian )
@@ -183,7 +183,7 @@ public:
             buf[0] = static_cast<uint8_t>( x & 0xFF );
         }
     }
-    void from_qword( uint64_t x, uint8_t* buf )
+    void from_qword( uint8_t* buf, uint64_t x )
     {
         assert(buf);
         uint32_t h = high_dword( x );
@@ -236,9 +236,9 @@ protected:
             assert( bc.to_dword("\x12\x34\x56\x78") == 0x12345678 );
 
             uint8_t buf[4];
-            bc.from_word( 0x1234, buf );
+            bc.from_word( buf, 0x1234 );
             assert( memcmp("\x12\x34", buf, 2 ) == 0 );
-            bc.from_dword( 0x12345678, buf );
+            bc.from_dword( buf, 0x12345678 );
             assert( memcmp("\x12\x34\x56\x78", buf, 4 ) == 0 );
         }
         {
@@ -249,9 +249,9 @@ protected:
             assert( bc.to_dword("\x12\x34\x56\x78") == 0x78563412 );
 
             uint8_t buf[4];
-            bc.from_word( 0x3412, buf );
+            bc.from_word( buf, 0x3412 );
             assert( memcmp("\x12\x34", buf, 2 ) == 0 );
-            bc.from_dword( 0x78563412, buf );
+            bc.from_dword( buf, 0x78563412 );
             assert( memcmp("\x12\x34\x56\x78", buf, 4 ) == 0 );
         }
         assert(bit_converter::make_word(0x34, 0x12) == 0x3412);
@@ -269,14 +269,14 @@ protected:
             bit_converter bc( true );
             assert( bc.to_qword("\x12\x34\x56\x78\x90\xab\xcd\xef") == 0x1234567890abcdefULL );
             uint8_t buf[8];
-            bc.from_qword( 0x1234567890abcdefULL, buf );
+            bc.from_qword( buf, 0x1234567890abcdefULL );
             assert( memcmp("\x12\x34\x56\x78\x90\xab\xcd\xef", buf, 8 ) == 0 );
         }
         {
             bit_converter bc( false );
             assert( bc.to_qword("\x12\x34\x56\x78\x90\xab\xcd\xef") == 0xefcdab9078563412ULL );
             uint8_t buf[8];
-            bc.from_qword( 0xefcdab9078563412ULL, buf );
+            bc.from_qword( buf, 0xefcdab9078563412ULL );
             assert( memcmp("\x12\x34\x56\x78\x90\xab\xcd\xef", buf, 8 ) == 0 );
         }
 #else
@@ -287,14 +287,14 @@ protected:
             bit_converter bc( true );
             assert( bc.to_qword("\x12\x34\x56\x78\x90\xab\xcd\xef") == 0x1234567890abcdefULL );
             uint8_t buf[8];
-            bc.from_qword( 0x1234567890abcdefULL, buf );
+            bc.from_qword( buf, 0x1234567890abcdefULL );
             assert( memcmp("\x12\x34\x56\x78\x90\xab\xcd\xef", buf, 8 ) == 0 );
         }
         {
             bit_converter bc( false );
             assert( bc.to_qword("\x12\x34\x56\x78\x90\xab\xcd\xef") == 0xefcdab9078563412ULL );
             uint8_t buf[8];
-            bc.from_qword( 0xefcdab9078563412ULL, buf );
+            bc.from_qword( buf, 0xefcdab9078563412ULL );
             assert( memcmp("\x12\x34\x56\x78\x90\xab\xcd\xef", buf, 8 ) == 0 );
         }
 #endif

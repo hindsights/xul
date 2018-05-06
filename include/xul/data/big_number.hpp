@@ -2,8 +2,11 @@
 
 #include <xul/text/hex_encoding.hpp>
 #include <xul/std/std_hasher.hpp>
+#include <xul/data/bit_converter.hpp>
 
 #include <string>
+#include <algorithm>
+#include <stdexcept>
 #include <stdint.h>
 #include <stddef.h>
 #include <string.h>
@@ -28,17 +31,95 @@ public:
     }
 
     big_number() { this->clear(); }
+    big_number(const big_number& n) { this->assign(n); }
+    big_number(const uint64_t& n) { this->assign(n); }
+    big_number(const int64_t& n) { this->assign(n); }
+    big_number(uint32_t n) { this->assign(n); }
+    big_number(int32_t n) { this->assign(n); }
 
+    uint64_t get_uint64(int pos) const
+    {
+        assert(pos >= 0 && pos * 8 < byte_count);
+        return bit_converter::little_endian().to_qword(m_bytes + pos * 8);
+    }
+
+    void assign(const big_number& val)
+    {
+        memcpy(this->m_bytes, val.m_bytes, byte_count);
+    }
     void assign(uint32_t val)
     {
         this->clear();
-        memcpy(this->m_bytes, &val, 4);
+        memcpy(this->m_bytes, &val, sizeof(val));
     }
-
     void assign(const uint64_t& val)
     {
         this->clear();
-        memcpy(this->m_bytes, &val, 8);
+        memcpy(this->m_bytes, &val, sizeof(val));
+    }
+    void assign(int32_t val)
+    {
+        if (val >= 0)
+        {
+            this->assign(static_cast<uint32_t>(val));
+        }
+        else
+        {
+            this->assign(static_cast<uint32_t>(-val));
+            this->negate();
+        }
+    }
+    void assign(const int64_t& val)
+    {
+        if (val >= 0)
+        {
+            this->assign(static_cast<uint64_t>(val));
+        }
+        else
+        {
+            this->assign(static_cast<uint64_t>(-val));
+            this->negate();
+        }
+    }
+    void flip()
+    {
+        for (int i = 0; i< byte_count; ++i)
+            this->m_bytes[i] = ~this->m_bytes[i];
+    }
+    void negate()
+    {
+        this->flip();
+        this->increment();
+    }
+
+    void increment()
+    {
+        int i = 0;
+        while (i < byte_count && ++this->m_bytes[i] == 0)
+            i++;
+    }
+    void decrement()
+    {
+        int i = 0;
+        while (i < byte_count && --this->m_bytes[i] == 0xFF)
+            i++;
+    }
+
+    unsigned int bits() const
+    {
+        for (int pos = byte_count - 1; pos >= 0; --pos)
+        {
+            if (this->m_bytes[pos])
+            {
+                for (int n = 7; n > 0; --n)
+                {
+                    if (this->m_bytes[pos] & (1 << n))
+                        return 8 * pos + n + 1;
+                }
+                return 8 * pos + 1;
+            }
+        }
+        return 0;
     }
 
     void assign(std::string const& s)
@@ -63,33 +144,33 @@ public:
         return is_null();
     }
 
-    bool operator==(big_number const& n) const
+    bool operator==(const big_number& n) const
     {
         return this->compare(n) == 0;
     }
 
-    bool operator!=(big_number const& n) const
+    bool operator!=(const big_number& n) const
     {
         return this->compare(n) != 0;
     }
 
-    bool operator<(big_number const& n) const
+    bool operator<(const big_number& n) const
     {
         return this->compare(n) < 0;
     }
-    bool operator>(big_number const& n) const
+    bool operator>(const big_number& n) const
     {
         return this->compare(n) > 0;
     }
-    bool operator<=(big_number const& n) const
+    bool operator<=(const big_number& n) const
     {
         return this->compare(n) <= 0;
     }
-    bool operator>=(big_number const& n) const
+    bool operator>=(const big_number& n) const
     {
         return this->compare(n) >= 0;
     }
-    int compare(big_number const& n) const
+    int compare(const big_number& n) const
     {
         for (int i = byte_count - 1; i >= 0; --i)
         {
@@ -99,6 +180,104 @@ public:
         return 0;
     }
 
+    big_number& operator=(const big_number& val) { assign(val); return *this; }
+    big_number& operator=(const uint64_t& val) { assign(val); return *this; }
+    big_number& operator=(const int64_t& val) { assign(val); return *this; }
+    big_number& operator=(uint32_t val) { assign(val); return *this; }
+    big_number& operator=(int32_t val) { assign(val); return *this; }
+
+    big_number& operator+=(const big_number& b)
+    {
+        uint16_t carry = 0;
+        for (int i = 0; i < byte_count; i++)
+        {
+            uint16_t n = carry + this->m_bytes[i] + b.m_bytes[i];
+            this->m_bytes[i] = n & 0xFF;
+            carry = n >> 8;
+        }
+        return *this;
+    }
+
+    big_number& operator-=(const big_number& b)
+    {
+        *this += (-b);
+        return *this;
+    }
+
+    big_number& operator*=(const big_number& b)
+    {
+        big_number a = *this;
+        this->clear();
+        for (int j = 0; j < byte_count; ++j)
+        {
+            uint16_t carry = 0;
+            for (int i = 0; i + j < byte_count; ++i)
+            {
+                uint16_t n = carry + this->m_bytes[i + j] + (uint16_t)a.m_bytes[j] * b.m_bytes[i];
+                this->m_bytes[i + j] = n & 0xFF;
+                carry = n >> 8;
+            }
+        }
+        return *this;
+    }
+    big_number& operator/=(const big_number& b)
+    {
+        big_number div = b;
+        big_number num = *this;
+        this->clear();
+        int num_bits = num.bits();
+        int div_bits = div.bits();
+        if (div_bits == 0)
+            throw std::runtime_error("Division by zero");
+        if (div_bits > num_bits) // the result is certainly 0.
+            return *this;
+        int shift = num_bits - div_bits;
+        div <<= shift; // shift so that div and num align.
+        while (shift >= 0)
+        {
+            if (num >= div)
+            {
+                num -= div;
+                this->m_bytes[shift / 8] |= (1 << (shift & 7)); // set a bit of the result.
+            }
+            div >>= 1; // shift back.
+            shift--;
+        }
+        // num now contains the remainder of the division.
+        return *this;
+    }
+
+
+    big_number& operator++()
+    {
+        // prefix operator
+        this->increment();
+        return *this;
+    }
+
+    const big_number operator++(int)
+    {
+        // postfix operator
+        const big_number ret = *this;
+        this->increment();
+        return ret;
+    }
+
+    big_number& operator--()
+    {
+        // prefix operator
+        this->decrement();
+        return *this;
+    }
+
+    const big_number operator--(int)
+    {
+        // postfix operator
+        const big_number ret = *this;
+        this->decrement();
+        return ret;
+    }
+
     big_number operator~() const
     {
         big_number ret;
@@ -106,27 +285,41 @@ public:
             ret.m_bytes[i] = ~this->m_bytes[i];
         return ret;
     }
+    const big_number operator-() const
+    {
+        big_number ret;
+        for (int i = 0; i < byte_count; ++i)
+            ret.m_bytes[i] = ~this->m_bytes[i];
+        ++ret;
+        return ret;
+    }
 
-    big_number& operator &= (big_number const& n)
+
+    big_number& operator &= (const big_number& n)
     {
         for (int i = 0; i< byte_count; ++i)
             this->m_bytes[i] &= n.m_bytes[i];
         return *this;
     }
 
-    big_number& operator |= (big_number const& n)
+    big_number& operator |= (const big_number& n)
     {
         for (int i = 0; i< byte_count; ++i)
             this->m_bytes[i] |= n.m_bytes[i];
         return *this;
     }
 
-    big_number& operator ^= (big_number const& n)
+    big_number& operator ^= (const big_number& n)
     {
         for (int i = 0; i< byte_count; ++i)
             this->m_bytes[i] ^= n.m_bytes[i];
         return *this;
     }
+
+    big_number operator+(const big_number& n) const { big_number ret = *this; ret += n; return ret; }
+    big_number operator-(const big_number& n) const { big_number ret = *this; ret -= n; return ret; }
+    big_number operator*(const big_number& n) const { big_number ret = *this; ret *= n; return ret; }
+    big_number operator/(const big_number& n) const { big_number ret = *this; ret /= n; return ret; }
 
     big_number operator<<(unsigned int shift) const
     {
@@ -256,7 +449,10 @@ public:
     {
         if (s.size() != byte_count * 2)
             return false;
-        return xul::hex_encoding::decode(s, this->m_bytes, byte_count);
+        if (!xul::hex_encoding::decode(s, this->m_bytes, byte_count))
+            return false;
+        this->reverse_bytes();
+        return true;
     }
     static big_number<LengthT> parse(const std::string& s)
     {
@@ -264,6 +460,11 @@ public:
         if (num.try_parse(s))
             return num;
         return big_number<LengthT>();
+    }
+
+    void reverse_bytes()
+    {
+        std::reverse(this->begin(), this->end());
     }
 
 private:

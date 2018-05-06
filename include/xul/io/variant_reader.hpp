@@ -149,7 +149,7 @@ inline data_input_stream& operator>>( data_input_stream& is, const variant_strin
             is.set_bad();
             return is;
         }
-        is.read_string( len, reader.data );
+        is.read_string( reader.data, len );
     }
     return is;
 }
@@ -165,7 +165,7 @@ inline data_input_stream& operator>>( data_input_stream& is, const variant_buffe
             is.set_bad();
             return is;
         }
-        is.read_buffer( len, reader.data );
+        is.read_buffer( reader.data, len );
     }
     return is;
 }

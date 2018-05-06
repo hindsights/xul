@@ -350,7 +350,7 @@ private:
         std::string parentdir = paths::get_directory(dir);
         if (!parentdir.empty() && !do_create_directories(parentdir))
             return false;
-        return mkdir(dir.c_str(), S_IRWXU|S_IRWXG|S_IRWXO);
+        return detail::api_create_directory(dir.c_str());
     }
     static bool api_create_directories( const char* dir )
     {

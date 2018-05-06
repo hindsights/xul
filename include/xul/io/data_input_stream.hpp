@@ -132,6 +132,11 @@ public:
         if ( false == m_good )
             return -1;
         int ch = m_in->read_byte();
+        if ( ch < 0 )
+        {
+            set_bad();
+            return -1;
+        }
         m_bit_offset = 0;
         m_good = (ch >= 0);
         return ch;
@@ -223,7 +228,7 @@ public:
         return read_memory( buf, size );
     }
 
-    bool read_buffer(size_t count, byte_buffer& s)
+    bool read_buffer(byte_buffer& s, size_t count)
     {
         if ( false == try_read_bytes( count ) )
             return false;
@@ -239,8 +244,8 @@ public:
         return false;
     }
 
-    template<typename CharT, typename TraitsT, typename AllocT>
-    bool read_string(size_t count, std::basic_string<CharT, TraitsT, AllocT>& s)
+    template<typename TraitsT, typename AllocT>
+    bool read_string(std::basic_string<char, TraitsT, AllocT>& s, size_t count)
     {
         if ( false == try_read_bytes( count ) )
             return false;
@@ -288,12 +293,12 @@ public:
     }
 
 
-    bool read_uint8( unsigned char& val )
+    bool read_uint8( uint8_t& val )
     {
         return read_byte( val );
     }
 
-    bool read_uint16( unsigned short& val )
+    bool read_uint16( uint16_t& val )
     {
         unsigned short x;
         if ( false == read_memory( &x, 2 ) )
@@ -302,23 +307,7 @@ public:
         return true;
     }
 
-#if !defined(__GNUC__) || !defined(__x86_64__)
-// non-gcc or gcc with non-64bit mode
-    bool read_uint32( unsigned long& val )
-    {
-        unsigned long x;
-        if ( false == read_memory( &x, 4 ) )
-            return false;
-        val = m_byte_order.convert_dword( x );
-        return true;
-    }
-    bool read_int32( long& val )
-    {
-        return read_uint32( reinterpret_cast<unsigned long&>( val ) );
-    }
-#endif
-
-    bool read_uint32( unsigned int& val )
+    bool read_uint32( uint32_t& val )
     {
         unsigned int x;
         if ( false == read_memory( &x, 4 ) )
@@ -347,17 +336,17 @@ public:
 
     bool read_int8( signed char& val )
     {
-        return read_uint8( reinterpret_cast<unsigned char&>( val ) );
+        return read_uint8( reinterpret_cast<uint8_t&>( val ) );
     }
 
-    bool read_int16( short& val )
+    bool read_int16( int16_t& val )
     {
-        return read_uint16( reinterpret_cast<unsigned short&>( val ) );
+        return read_uint16( reinterpret_cast<uint16_t&>( val ) );
     }
 
-    bool read_int32( int& val )
+    bool read_int32( int32_t& val )
     {
-        return read_uint32( reinterpret_cast<unsigned int&>( val ) );
+        return read_uint32( reinterpret_cast<uint32_t&>( val ) );
     }
 
     bool read_int64( int64_t& val )

@@ -45,6 +45,21 @@ public:
         this->do_decode(is, args...);
         return is.good();
     }
+    template <typename ...ARGS>
+    bool decode(const std::string& s, const ARGS&... args)
+    {
+        char dummybuf[1];
+        memory_data_input_stream is(s.empty() ? dummybuf : s.data(), s.size(), this->m_big_endian);
+        this->do_decode(is, args...);
+        return is.good();
+    }
+    template <typename ...ARGS>
+    bool decode(const uint8_t* data, int size, const ARGS&... args)
+    {
+        memory_data_input_stream is(data, size, this->m_big_endian);
+        this->do_decode(is, args...);
+        return is.good();
+    }
 
 private:
     template <typename T>

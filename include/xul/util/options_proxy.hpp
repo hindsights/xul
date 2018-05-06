@@ -100,10 +100,10 @@ public:
         while(fin.read_line(line)) {
             boost::trim_if (line, boost::is_any_of(" \t\r\n"));
             if (line.empty())
-                continue; // ∫ˆ¬‘ø’––
+                continue;
             assert(line.size() > 0);
             if ('#' == line[0])
-                continue; // ∫ˆ¬‘◊¢ Õ
+                continue;
             opts.parse(line);
         }
         this->revise();
