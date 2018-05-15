@@ -79,7 +79,7 @@ public:
         return encode(str.data(), str.size());
     }
 
-    static bool decode(const std::string& str, std::string& bytes)
+    static bool decode(std::string& bytes, const std::string& str)
     {
         bytes.clear();
         if (str.size() % 2 != 0)
@@ -98,12 +98,12 @@ public:
     }
     static std::string decode(const std::string& str)
     {
-        std::string s;
-        if (decode(str, s))
-            return s;
+        std::string bytes;
+        if (decode(bytes, str))
+            return bytes;
         return std::string();
     }
-    static bool decode(const std::string& str, unsigned char* buf, size_t size)
+    static bool decode(unsigned char* buf, size_t size, const std::string& str)
     {
         if ( 0==str.size() || (str.size() % 2 != 0) )
             return false;

@@ -1,5 +1,8 @@
 #pragma once
 
+
+#if (defined(_DEBUG) || !defined(NDEBUG)) && !defined(_WIN32_WCE)
+
 #include <xul/macro/token.hpp>
 #include <xul/macro/foreach.hpp>
 #include <xul/std/containers.hpp>
@@ -10,25 +13,10 @@
 #include <string>
 #include <assert.h>
 
-#ifdef XUL_WINDOWS
-#pragma warning(disable:4127)
-#endif
-
-/**
- * @file
- * @brief test framework
- */
-
-
-
 #define XUL_LOG_TYPE_TESTCASE 110
 
 #define TESTCASE_EVENT(message) XUL_LOG_IMPL(XUL_LOG_TYPE_TESTCASE, _XUL_EVENT, message)
 
-
-
-
-#if (defined(_DEBUG) || !defined(NDEBUG)) && !defined(_WIN32_WCE)
 
 #ifndef XUL_RUN_TEST
 #define XUL_RUN_TEST
@@ -51,12 +39,12 @@ public:
     test_case() { }
     virtual ~test_case() { }
 
-    bool init()
+    virtual bool init()
     {
         return do_init();
     }
 
-    void run()
+    virtual void run()
     {
         do_run();
     }
@@ -72,10 +60,6 @@ protected:
 private:
     std::string m_name;
 };
-
-
-typedef test_case TestCase;
-
 
 
 class test_suite : public test_case, public singleton<test_suite>
@@ -138,6 +122,9 @@ public:
     }
 };
 
+/// macro fro test suite registration
+#define XUL_TEST_SUITE_REGISTRATION(testCase)        static xul::auto_register_test_suite XUL_MAKE_UNIQUE_NAME(testCase)(new testCase, #testCase)
+
 
 inline void run_tests()
 {
@@ -154,11 +141,3 @@ inline void run_tests()
 #endif
 
 }
-
-
-/// macro fro test suite registration
-#define XUL_TEST_SUITE_REGISTRATION(testCase)        static xul::auto_register_test_suite XUL_MAKE_UNIQUE_NAME(testCase)(new testCase, #testCase)
-
-
-#pragma warning(default:4127)
-

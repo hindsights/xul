@@ -388,7 +388,7 @@ public:
         return fwrite(data, 1, size, m_handle);
     }
 
-    bool write(const char* str)
+    int write(const char* str)
     {
         assert(str != NULL);
         assert(is_open());
@@ -396,7 +396,11 @@ public:
         //{
         //    return false;
         //}
-        return EOF != fputs(str, m_handle);
+        return fputs(str, m_handle);
+    }
+    int write(const std::string& str)
+    {
+        return write(str.data(), str.size());
     }
 
     /// argument is va_list

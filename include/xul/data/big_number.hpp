@@ -449,7 +449,7 @@ public:
     {
         if (s.size() != byte_count * 2)
             return false;
-        if (!xul::hex_encoding::decode(s, this->m_bytes, byte_count))
+        if (!xul::hex_encoding::decode(this->m_bytes, byte_count, s))
             return false;
         this->reverse_bytes();
         return true;

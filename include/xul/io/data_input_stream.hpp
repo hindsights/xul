@@ -1,6 +1,7 @@
 #pragma once
 
 #include <xul/io/memory_input_stream.hpp>
+#include <xul/io/istream_stream.hpp>
 #include <xul/io/input_stream.hpp>
 #include <xul/io/serializable.hpp>
 #include <xul/data/byte_order.hpp>
@@ -469,5 +470,17 @@ private:
     memory_input_stream m_mis;
 };
 
+
+class istream_data_input_stream : public data_input_stream
+{
+public:
+    istream_data_input_stream( std::istream& is, bool bigEndian ) : data_input_stream( NULL, bigEndian ), m_mis( is )
+    {
+        this->attach( m_mis );
+    }
+
+private:
+    istream_stream m_mis;
+};
 
 }
